@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">WhatsappClone</string>
+    <string name="verify_your_phone_number">Verify Your Phone Number</string>
+    <string name="otp_text">This app will send an OTP to verify your mobile number</string>
+    <string name="enter_your_phone_number">Enter your phone number</string>
+    <string name="getOTP_button">Get OTP</string>
+    <string name="otp_verify_text">Enter OTP to verify your phone number</string>
+    <string name="verify">Verify</string>
+</resources>

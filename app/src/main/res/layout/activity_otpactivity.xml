@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f9f9f9"
+    tools:context=".PhoneNumberAuthentication">
+
+    <ImageView
+        android:id="@+id/phoneBackground"
+        android:layout_width="175dp"
+        android:layout_height="175dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/phone_background"
+        />
+
+    <TextView
+        android:id="@+id/phoneNumberLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/phoneBackground"
+        app:layout_constraintLeft_toLeftOf="@id/phoneBackground"
+        app:layout_constraintRight_toRightOf="@id/phoneBackground"
+        android:layout_marginTop="8dp"
+        android:text="Verify +917878156965"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:id="@+id/otpText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/phoneNumberLabel"
+        app:layout_constraintLeft_toLeftOf="@id/phoneNumberLabel"
+        app:layout_constraintRight_toRightOf="@id/phoneNumberLabel"
+        android:layout_marginTop="12dp"
+        android:text="@string/otp_verify_text"
+        android:textColor="#212121"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        />
+    <androidx.cardview.widget.CardView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/otpText"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="18dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        app:cardCornerRadius="10dp"
+
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_margin="10dp"
+            >
+
+            <com.mukesh.OtpView
+                android:id="@+id/otpView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:inputType="number"
+                android:itemBackground="@color/grey"
+                android:textColor="@color/black"
+                app:OtpItemCount="6"
+                app:OtpLineColor="@color/green"
+                app:OtpViewType="line"
+                android:layout_gravity="center"
+                android:focusableInTouchMode="true"
+                />
+            <Button
+                android:id="@+id/continueButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/verify"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/green"
+                android:layout_marginTop="10dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
