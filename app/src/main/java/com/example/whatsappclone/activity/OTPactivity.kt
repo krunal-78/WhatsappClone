@@ -1,7 +1,8 @@
-package com.example.whatsappclone
+package com.example.whatsappclone.activity
 
 import android.app.ProgressDialog
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +10,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import com.example.whatsappclone.R
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.firebase.FirebaseException
@@ -90,7 +92,10 @@ class OTPactivity : AppCompatActivity() {
                     firebaseAuth.signInWithCredential(phoneAuthCredential).addOnCompleteListener(
                         OnCompleteListener {
                             if(it.isSuccessful){
-                                Toast.makeText(this@OTPactivity,"signInSuccess",Toast.LENGTH_SHORT).show()
+//                                Toast.makeText(this@OTPactivity,"signInSuccess",Toast.LENGTH_SHORT).show()
+                                val intent = Intent(this@OTPactivity, SetupProfileActivity::class.java)
+                                startActivity(intent)
+                                finishAffinity()
                                 Log.d("signInSuccess","signIn successful!")
                             }
                             else{

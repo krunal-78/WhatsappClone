@@ -10,14 +10,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:usesCleartextTraffic="true"
         android:supportsRtl="true"
+        android:requestLegacyExternalStorage="true"
         android:theme="@style/Theme.WhatsappClone"
         tools:targetApi="m">
-        <activity android:name=".OTPactivity"
+        <activity android:name=".activity.OTPactivity"
             android:label="PhoneNumber Verification"
-            android:parentActivityName=".PhoneNumberAuthentication"
+            android:parentActivityName=".activity.PhoneNumberAuthentication"
             android:theme="@style/Theme.WhatsappClone">
         </activity>
-        <activity android:name=".PhoneNumberAuthentication"
+        <activity android:name=".activity.PhoneNumberAuthentication"
             android:theme="@style/Theme.WhatsappClone"
             android:windowSoftInputMode="stateVisible">
             <intent-filter>
@@ -26,9 +27,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"
+        <activity android:name=".activity.MainActivity"
             android:theme="@style/Theme.WhatsappClone"
+
             ></activity>
+        <activity android:name=".activity.SetupProfileActivity"
+            android:theme="@style/Theme.WhatsappClone"
+            />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>

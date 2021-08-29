@@ -6,4 +6,11 @@
     <string name="getOTP_button">Get OTP</string>
     <string name="otp_verify_text">Enter OTP to verify your phone number</string>
     <string name="verify">Verify</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="please_set_a_profile_picture_optional">Please set a Profile Picture(optional)</string>
+    <string name="enter_your_name">Enter your Name</string>
+    <string name="set_up_profile">Set Up Profile</string>
+    <string name="phone_number_warning">Phone Number can\'t be Empty!</string>
+    <string name="sample_name">Sample Name</string>
+    <string name="tap_to_chat">Tap to chat</string>
 </resources>
