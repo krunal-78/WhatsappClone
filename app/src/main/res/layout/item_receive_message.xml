@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/receiveMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:text="@string/received_message"
+        android:background="@drawable/received_message"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textSize="15sp"
+        android:textColor="#212121"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="5dp"
+        />
+
+    <ImageView
+        android:id="@+id/emojiReactReceive"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        app:layout_constraintLeft_toRightOf="@id/receiveMessage"
+        app:layout_constraintBottom_toBottomOf="@id/receiveMessage"
+        app:layout_constraintTop_toTopOf="@id/receiveMessage"
+        app:layout_constraintRight_toRightOf="@id/receiveMessage"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>

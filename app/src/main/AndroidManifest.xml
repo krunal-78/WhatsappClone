@@ -7,18 +7,23 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:usesCleartextTraffic="true"
-        android:supportsRtl="true"
         android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
         android:theme="@style/Theme.WhatsappClone"
+        android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".activity.OTPactivity"
+        <activity android:name=".activity.ChatActivity"
+            android:parentActivityName=".activity.MainActivity">
+
+        </activity>
+        <activity
+            android:name=".activity.OTPactivity"
             android:label="PhoneNumber Verification"
             android:parentActivityName=".activity.PhoneNumberAuthentication"
-            android:theme="@style/Theme.WhatsappClone">
-        </activity>
-        <activity android:name=".activity.PhoneNumberAuthentication"
+            android:theme="@style/Theme.WhatsappClone"></activity>
+        <activity
+            android:name=".activity.PhoneNumberAuthentication"
             android:theme="@style/Theme.WhatsappClone"
             android:windowSoftInputMode="stateVisible">
             <intent-filter>
@@ -27,13 +32,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.MainActivity"
-            android:theme="@style/Theme.WhatsappClone"
-
-            ></activity>
-        <activity android:name=".activity.SetupProfileActivity"
-            android:theme="@style/Theme.WhatsappClone"
-            />
+        <activity
+            android:name=".activity.MainActivity"
+            android:theme="@style/Theme.WhatsappClone" />
+        <activity
+            android:name=".activity.SetupProfileActivity"
+            android:theme="@style/Theme.WhatsappClone" />
 
         <meta-data
             android:name="preloaded_fonts"

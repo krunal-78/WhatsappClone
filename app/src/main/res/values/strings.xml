@@ -13,4 +13,7 @@
     <string name="phone_number_warning">Phone Number can\'t be Empty!</string>
     <string name="sample_name">Sample Name</string>
     <string name="tap_to_chat">Tap to chat</string>
+    <string name="type_a_message">Type a message...</string>
+    <string name="sent_message">Sent Message</string>
+    <string name="received_message">Received message</string>
 </resources>
