@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     tools:context=".activity.MainActivity"
-
     >
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -25,10 +24,28 @@
         android:layout_height="0dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topStatusRecyclerView"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigationBar"
         tools:listitem="@layout/item_conversation"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:padding="4dp"
+        />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/topStatusRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+    <View
+        android:id="@+id/line"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        app:layout_constraintTop_toBottomOf="@id/topStatusRecyclerView"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:background="@color/grey"
+        android:layout_marginTop="8dp"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>
