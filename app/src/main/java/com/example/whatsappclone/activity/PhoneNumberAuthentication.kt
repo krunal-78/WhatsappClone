@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -16,6 +17,7 @@ class PhoneNumberAuthentication : AppCompatActivity() {
     private lateinit var getOTPButton : Button
     private lateinit var warning : TextView
     private lateinit var firebaseAuth : FirebaseAuth
+
     companion object{
         const val PHONE_NUMBER_EXTRA = "com.example.whatsappclone.activities.phone_number"
     }

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.cooltechworks.views.shimmer.ShimmerRecyclerView
 import com.example.whatsappclone.adapters.TopStatusAdapter
 import com.example.whatsappclone.adapters.UsersAdapter
 import com.example.whatsappclone.interfaces.IUsersAdapter
@@ -32,11 +33,11 @@ import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(),IUsersAdapter {
     private lateinit var bottomNavigationBar : BottomNavigationView
-    private lateinit var recyclerView : RecyclerView
+    private lateinit var recyclerView : ShimmerRecyclerView
     private lateinit var usersAdapter : UsersAdapter
     private lateinit var itemUsers : ArrayList<User>
     private lateinit var firebaseDatabase: FirebaseDatabase
-    private lateinit var topStatusRecyclerView: RecyclerView
+    private lateinit var topStatusRecyclerView: ShimmerRecyclerView
     private lateinit var itemUserStatus : ArrayList<UserStatus>
     private lateinit var topStatusAdapter: TopStatusAdapter
     private lateinit var progressDialog : ProgressDialog
@@ -65,13 +66,17 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
         usersAdapter = UsersAdapter(this,this,itemUsers)
         recyclerView.adapter = usersAdapter
         recyclerView.addItemDecoration(DividerItemDecoration(this,DividerItemDecoration.VERTICAL))
-
+//        recyclerView.setDemoChildCount(usersAdapter.itemCount)
+        recyclerView.showShimmerAdapter()
         // set the status' adapter;
         topStatusAdapter = TopStatusAdapter(this,itemUserStatus)
         val layoutManager = LinearLayoutManager(this)
         layoutManager.orientation = RecyclerView.HORIZONTAL
         topStatusRecyclerView.layoutManager = layoutManager
         topStatusRecyclerView.adapter = topStatusAdapter
+//        topStatusRecyclerView.setDemoChildCount(topStatusAdapter.itemCount)
+        topStatusRecyclerView.showShimmerAdapter()
+
         // now fetch data in recycler view from database;
         fetchDataInRecyclerView()
         //click listner for bottom navigation bar;
@@ -103,10 +108,13 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
                             it.child("allStatus").children.forEach{
                                 val itemStatus = it.getValue(Status::class.java)
                                 allStatus.add(itemStatus!!)
+                                allStatus.sortByDescending { it.timeStamp }
                             }
                             userStatus.allUserStatus = allStatus // set user status' array list to this array list;
                             itemUserStatus.add(userStatus)
+                            itemUserStatus.sortByDescending { it.lastUpdatedTime }
                         }
+                        topStatusRecyclerView.hideShimmerAdapter()
                         topStatusAdapter.notifyDataSetChanged()
                     }
 
@@ -223,6 +231,8 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
                     if (user != null && user.userId!=FirebaseAuth.getInstance().currentUser!!.uid) {
                         itemUsers.add(user)
                     }
+                    itemUsers.sortByDescending {it.lastMessageTime }
+                    recyclerView.hideShimmerAdapter()
                     usersAdapter.notifyDataSetChanged()
                 }
             }

@@ -6,9 +6,12 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.TextView
+import android.widget.ProgressBar
+
 import android.widget.Toast
 import com.example.whatsappclone.R
 import com.google.android.gms.tasks.OnCompleteListener
@@ -29,6 +32,7 @@ class OTPactivity : AppCompatActivity() {
     private lateinit var otpView : OtpView
     private lateinit var continueButton : Button
     private lateinit var progressDialog : ProgressDialog
+    private lateinit var progressBar : ProgressBar
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_otpactivity)
@@ -36,6 +40,7 @@ class OTPactivity : AppCompatActivity() {
         phoneNumberLabel = findViewById(R.id.phoneNumberLabel)
         otpView = findViewById(R.id.otpView)
         continueButton = findViewById(R.id.continueButton)
+        progressBar = findViewById(R.id.progressBar)
         //open keyboard automatically for OTP;
         val inputMethodManager : InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED,0)
@@ -85,6 +90,7 @@ class OTPactivity : AppCompatActivity() {
 
         otpView.setOtpCompletionListener(object : OnOtpCompletionListener{
             override fun onOtpCompleted(otp: String?) {
+                progressBar.visibility = View.VISIBLE
                 val phoneAuthCredential =
                     otp?.let { PhoneAuthProvider.getCredential(verificationId, otp) }
                 //try sign in with this credential;
@@ -95,6 +101,7 @@ class OTPactivity : AppCompatActivity() {
 //                                Toast.makeText(this@OTPactivity,"signInSuccess",Toast.LENGTH_SHORT).show()
                                 val intent = Intent(this@OTPactivity, SetupProfileActivity::class.java)
                                 startActivity(intent)
+                                progressBar.visibility = View.GONE
                                 finishAffinity()
                                 Log.d("signInSuccess","signIn successful!")
                             }

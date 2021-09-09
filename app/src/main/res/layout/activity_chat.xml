@@ -34,8 +34,10 @@
                 android:layout_marginLeft="10dp"
                 android:background="@android:color/transparent"
                 android:hint="@string/type_a_message"
-                android:inputType="textPersonName"
+                android:inputType="textMultiLine"
                 android:textColorHint="#212121"
+                android:ellipsize="end"
+
                 android:textSize="14sp" />
 
             <ImageView

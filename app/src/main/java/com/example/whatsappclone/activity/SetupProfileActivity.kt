@@ -76,6 +76,8 @@ class SetupProfileActivity : AppCompatActivity() {
                             val phoneNumber = firebaseAuth.currentUser!!.phoneNumber
 
                             val user = User(userId,userName,phoneNumber!!,imageUrl)
+                            user.lastMessage = ""
+                            user.lastMessageTime = 0
                             // now add user in the data base;
                             firebaseDatabase.reference.child("Users").child(userId).setValue(user)
                                 .addOnSuccessListener {

@@ -19,6 +19,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import java.util.*
 import kotlin.collections.ArrayList
+import android.widget.Toast
 
 
 
@@ -34,6 +35,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var firebaseDatabase: FirebaseDatabase
     private lateinit var senderRoom:String
     private lateinit var receiverRoom:String
+    private lateinit var receiverUserId :String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
@@ -48,7 +50,8 @@ class ChatActivity : AppCompatActivity() {
         //get data from intent and set it to action bar;
         val userName = intent.getStringExtra(MainActivity.USERNAME_EXTRA)
         // receiver user id ;
-        val receiverUserId = intent.getStringExtra(MainActivity.USERID_EXTRA)
+        receiverUserId = intent.getStringExtra(MainActivity.USERID_EXTRA).toString()
+
         //sender user id;
         val senderUserId = FirebaseAuth.getInstance().currentUser!!.uid
         // make two different unique ids for sender and receiver by concatenation of the strings;
@@ -80,38 +83,51 @@ class ChatActivity : AppCompatActivity() {
         lastMsgObject["lastMessage"] = message.messageText
         lastMsgObject["lastMessageTime"] = date.time
 
+        if(messageText.isNotEmpty()) {
+            firebaseDatabase.reference.child("Chats").child(senderRoom)
+                .updateChildren(lastMsgObject)
+            firebaseDatabase.reference.child("Chats").child(receiverRoom)
+                .updateChildren(lastMsgObject)
+            firebaseDatabase.reference.child("Chats")
+                .child(senderRoom)
+                .child("userMessages")
+                .child(uniqueId!!)
+                .setValue(message)
+                .addOnSuccessListener {
+                    Log.d("signInSuccess", "message stored in senderRoom successfully!")
+                    firebaseDatabase.reference.child("Chats")
+                        .child(receiverRoom)
+                        .child("userMessages")
+                        .child(uniqueId)
+                        .setValue(message)
+                        .addOnSuccessListener {
+                            Log.d("signInSuccess", "message stored in receiverRoom successfully!")
+                        }.addOnFailureListener {
+                            Log.d(
+                                "singInSuccess",
+                                "message can't stored in receiverRoom successfully!",
+                                it
+                            )
+                        }
+                    val lastMsgObject = hashMapOf<String, Any?>()
+                    lastMsgObject["lastMessage"] = message.messageText
+                    lastMsgObject["lastMessageTime"] = date.time
 
-        firebaseDatabase.reference.child("Chats").child(senderRoom).updateChildren(lastMsgObject)
-        firebaseDatabase.reference.child("Chats").child(receiverRoom).updateChildren(lastMsgObject)
-        firebaseDatabase.reference.child("Chats")
-            .child(senderRoom)
-            .child("userMessages")
-            .child(uniqueId!!)
-            .setValue(message)
-            .addOnSuccessListener {
-                Log.d("signInSuccess","message stored in senderRoom successfully!")
-                firebaseDatabase.reference.child("Chats")
-                    .child(receiverRoom)
-                    .child("userMessages")
-                    .child(uniqueId)
-                    .setValue(message)
-                    .addOnSuccessListener {
-                        Log.d("signInSuccess","message stored in receiverRoom successfully!")
-                    }.addOnFailureListener{
-                        Log.d("singInSuccess","message can't stored in receiverRoom successfully!",it)
-                    }
-                        val lastMsgObject = hashMapOf<String,Any?>()
-                        lastMsgObject["lastMessage"] = message.messageText
-                        lastMsgObject["lastMessageTime"] = date.time
+                    firebaseDatabase.reference.child("Chats").child(senderRoom)
+                        .updateChildren(lastMsgObject)
+                    firebaseDatabase.reference.child("Chats").child(receiverRoom)
+                        .updateChildren(lastMsgObject)
+                    // update last message in User's conversation also;
+                    firebaseDatabase.reference.child("Users").child(receiverUserId)
+                        .updateChildren(lastMsgObject)
 
-                        firebaseDatabase.reference.child("Chats").child(senderRoom).updateChildren(lastMsgObject)
-                        firebaseDatabase.reference.child("Chats").child(receiverRoom).updateChildren(lastMsgObject)
-
-            }.addOnFailureListener{
-                Log.d("singInSuccess","message can't stored receiverRoom successfully!",it)
-            }
-
-
+                }.addOnFailureListener {
+                    Log.d("singInSuccess", "message can't stored receiverRoom successfully!", it)
+                }
+        }
+        else{
+            Toast.makeText(this,"Can't send empty message!",Toast.LENGTH_SHORT).show()
+        }
     }
     private fun setUpRecyclerView(){
         firebaseDatabase.reference.child("Chats")

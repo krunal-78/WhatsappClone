@@ -34,9 +34,11 @@ class TopStatusAdapter(private val context : Context , private val itemUserStatu
     override fun onBindViewHolder(holder: TopStatusViewHolder, position: Int) {
         val userStatus = itemUserStatus[position]
         // get the last status;
-        val lastStatus = userStatus.allUserStatus!![userStatus.allUserStatus!!.size-1]
-        // now update last status into image view of status;
-        Glide.with(context).load(lastStatus.imageUrl).into(holder.lastStatusImage)
+        if(userStatus.allUserStatus!!.size!=0) {
+            val lastStatus = userStatus.allUserStatus!![0]
+            // now update last status into image view of status;
+            Glide.with(context).load(lastStatus.imageUrl).into(holder.lastStatusImage)
+        }
         //set user name;
         holder.userNameInStatus.text = userStatus.userName
         //now set the count of the status in circular status view;
