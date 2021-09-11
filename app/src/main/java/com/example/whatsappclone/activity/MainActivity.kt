@@ -22,6 +22,7 @@ import com.example.whatsappclone.models.User
 import com.example.whatsappclone.models.UserStatus
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthRegistrar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -49,6 +50,7 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         // get id's
         bottomNavigationBar = findViewById(R.id.bottomNavigationBar)
         recyclerView = findViewById(R.id.recyclerView)
@@ -60,6 +62,7 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
         progressDialog.setCancelable(false)
 
         firebaseDatabase = FirebaseDatabase.getInstance()
+
         itemUsers = ArrayList<User>()
         itemUserStatus = ArrayList<UserStatus>()
         // set the user's adapter
@@ -83,6 +86,7 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
         onBottomNavigationBarClicked()
         //get current user's details;
         getCurrentUserDetails()
+
         //fetch data from database for top status recycler view;
         fetchDataInTopStatusRecyclerView()
 
@@ -105,13 +109,20 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
                                 UserStatus(userName!!, userProfilePicture!!, lastUpdatedTime!!)
                             // make array list of statuses;
                             val allStatus = ArrayList<Status>()
-                            it.child("allStatus").children.forEach{
+                            it.child("allStatus").children.forEach {
                                 val itemStatus = it.getValue(Status::class.java)
                                 allStatus.add(itemStatus!!)
+                                removeStatus(itemStatus,allStatus)
                                 allStatus.sortByDescending { it.timeStamp }
                             }
-                            userStatus.allUserStatus = allStatus // set user status' array list to this array list;
-                            itemUserStatus.add(userStatus)
+                            userStatus.allUserStatus =
+                                allStatus // set user status' array list to this array list;
+                            // if all status is zero then remove it don't add;
+                            if(userStatus.allUserStatus!!.size!=0) {
+                                itemUserStatus.add(userStatus)
+                            }
+//                                removeAllUserStatus(userStatus)
+//                                Log.d("signInSuccess","all Status of user are removed!")
                             itemUserStatus.sortByDescending { it.lastUpdatedTime }
                         }
                         topStatusRecyclerView.hideShimmerAdapter()
@@ -193,6 +204,7 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
                             //make a status object also to add status in arraylist;
                             val imageUrl = it.toString() // image url that is downloaded from database successfully;
                             val status = Status(imageUrl,userStatus.lastUpdatedTime)
+                            val statusId = FirebaseAuth.getInstance().currentUser!!.uid + status.timeStamp
 
                             // now update the userStatus in database;
                             firebaseDatabase.reference.child("Stories")
@@ -202,7 +214,7 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
                             firebaseDatabase.reference.child("Stories")
                                 .child(FirebaseAuth.getInstance().currentUser!!.uid)
                                 .child("allStatus")
-                                .push()
+                                .child(statusId)
                                 .setValue(status)
                             // push will add node of unique id;
 
@@ -270,4 +282,49 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
         intent.putExtra(USERID_EXTRA,user.userId)
         startActivity(intent)
     }
+
+    private fun removeStatus(itemStatus : Status? , allStatus : ArrayList<Status>) {
+        val date = Date()
+        val currentTimeInHours = date.time/1000/60/60
+        val statusTimeInHours = itemStatus!!.timeStamp/1000/60/60
+        if(currentTimeInHours-statusTimeInHours>=24){
+            allStatus.remove(itemStatus)
+            removeStatusFromDatabase(itemStatus)
+            Log.d("signInSuccess","Status passed 24 hours, so it is removed!")
+        }
+    }
+
+    private fun removeStatusFromDatabase(itemStatus : Status?){
+        val currentUserid = FirebaseAuth.getInstance().currentUser!!.uid
+        val statusId = currentUserid + itemStatus!!.timeStamp
+        firebaseDatabase.reference.child("Stories")
+            .child(currentUserid)
+            .child("allStatus")
+            .child(statusId)
+            .removeValue()
+            .addOnSuccessListener {
+                Log.d("signInSuccess","deleted status from database successfully!")
+            }.addOnFailureListener{
+                Log.d("signInSuccess","can't delete status from database successfully!",it)
+            }
+    }
+    private fun removeAllUserStatus(userStatus : UserStatus) {
+        if (userStatus.allUserStatus!!.size ==0 ) {
+            // first remove it from the array list;
+            val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
+            firebaseDatabase.reference.child("Stories")
+                .child(currentUserId)
+                .removeValue()
+                .addOnSuccessListener {
+                    Log.d("signInSuccess", "deleted  all  user status from database successfully!")
+                }.addOnFailureListener {
+                    Log.d(
+                        "signInSuccess",
+                        "can't delete all user status from database successfully!",
+                        it
+                    )
+                }
+        }
+    }
+
 }
