@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
         topStatusRecyclerView.layoutManager = layoutManager
         topStatusRecyclerView.adapter = topStatusAdapter
 //        topStatusRecyclerView.setDemoChildCount(topStatusAdapter.itemCount)
+        if(topStatusAdapter.itemCount!=0) //
         topStatusRecyclerView.showShimmerAdapter()
 
         // now fetch data in recycler view from database;
@@ -285,11 +286,12 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
 
     private fun removeStatus(itemStatus : Status? , allStatus : ArrayList<Status>) {
         val date = Date()
-        val currentTimeInHours = date.time/1000/60/60
-        val statusTimeInHours = itemStatus!!.timeStamp/1000/60/60
-        if(currentTimeInHours-statusTimeInHours>=24){
+        val currentTimeInHours = date.time/1000/60;
+        val statusTimeInHours = itemStatus!!.timeStamp/1000/60;
+        if(currentTimeInHours-statusTimeInHours>=2){
             allStatus.remove(itemStatus)
             removeStatusFromDatabase(itemStatus)
+            removeStatusFromStorage(itemStatus);
             Log.d("signInSuccess","Status passed 24 hours, so it is removed!")
         }
     }
@@ -307,6 +309,15 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
             }.addOnFailureListener{
                 Log.d("signInSuccess","can't delete status from database successfully!",it)
             }
+    }
+    private fun removeStatusFromStorage(itemStatus: Status?){
+        val timeStamp  = itemStatus!!.timeStamp;
+        val storageReference = FirebaseStorage.getInstance().reference.child("Status");
+        storageReference.child(timeStamp.toString()).delete().addOnSuccessListener {
+            Log.d("signInSuccess","deleted status picture from storage!");
+        }.addOnFailureListener{
+            Log.d("signInSuccess","can't delete status picture in storage because of exception!",it);
+        }
     }
     private fun removeAllUserStatus(userStatus : UserStatus) {
         if (userStatus.allUserStatus!!.size ==0 ) {

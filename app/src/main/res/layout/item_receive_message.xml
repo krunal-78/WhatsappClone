@@ -4,34 +4,54 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/receiveMessage"
-        android:maxWidth="300dp"
+    <LinearLayout
+        android:id="@+id/linear_vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:text="@string/received_message"
+        app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/received_message"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:textSize="15sp"
-        android:textColor="#212121"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="5dp"
-        />
+        >
+        <ImageView
+            android:id="@+id/imageReceive"
+            android:layout_height="200dp"
+            android:layout_width="150dp"
+            android:src="@drawable/avatar"
+            android:layout_margin="8dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            />
+        <TextView
+            android:id="@+id/receiveMessage"
+            android:maxWidth="300dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:text="@string/received_message"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:textSize="15sp"
+            android:textColor="#212121"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp"
+            />
+    </LinearLayout>
+
+
 
     <ImageView
         android:id="@+id/emojiReactReceive"
         android:layout_width="16dp"
         android:layout_height="16dp"
-        app:layout_constraintLeft_toRightOf="@id/receiveMessage"
-        app:layout_constraintBottom_toBottomOf="@id/receiveMessage"
-        app:layout_constraintTop_toTopOf="@id/receiveMessage"
-        app:layout_constraintRight_toRightOf="@id/receiveMessage"
-        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toTopOf="@id/linear_vertical"
+        app:layout_constraintBottom_toBottomOf="@id/linear_vertical"
+        app:layout_constraintLeft_toRightOf="@id/linear_vertical"
+        app:layout_constraintRight_toRightOf="@id/linear_vertical"
         android:visibility="gone"
+        android:layout_marginTop="10dp"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

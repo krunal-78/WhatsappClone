@@ -38,6 +38,8 @@
         app:layout_constraintTop_toBottomOf="@id/userName"
         app:layout_constraintLeft_toRightOf="@id/userProfilePicture"
         android:layout_marginLeft="8dp"
+        android:maxWidth="200dp"
+        android:maxLines="1"
         android:ellipsize="end"
         android:text="@string/tap_to_chat"
         android:textSize="14sp"
