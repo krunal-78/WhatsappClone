@@ -3,6 +3,7 @@ package com.example.whatsappclone.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.media.Image
 import android.provider.Telephony
 import android.text.Layout
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import android.widget.TextView
 import android.widget.ImageView
+import com.bumptech.glide.Glide
 
 import com.example.whatsappclone.R
 import com.example.whatsappclone.models.Message
@@ -34,11 +36,13 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
     class SentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val sentMessage: TextView = itemView.findViewById(R.id.sentMessage)
         val emojiReactSent: ImageView = itemView.findViewById(R.id.emojiReactSent)
+        val imageSent : ImageView = itemView.findViewById(R.id.imageSent)
     }
 
     class ReceiveViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val receiveMessage: TextView = itemView.findViewById(R.id.receiveMessage)
         val emojiReactReceive: ImageView = itemView.findViewById(R.id.emojiReactReceive)
+        val imageReceive : ImageView = itemView.findViewById(R.id.imageReceive)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -109,7 +113,7 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
                     .child(message.messageId)
                     .setValue(message)
 
-                return true
+                return true // true for closing popup and false for requesting another reaction;
             }
 
         })
@@ -119,6 +123,11 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
         // check for the holder class and bind data to the holder in which class matches;
         if (holder.javaClass == SentViewHolder::class.java) {
             val viewHolder = holder as SentViewHolder
+            if(message.imageUrl.isNotEmpty()){
+                holder.imageSent.visibility = View.VISIBLE
+                holder.sentMessage.visibility = View.GONE
+                Glide.with(context).load(message.imageUrl).placeholder(R.drawable.image_placeholder).into(holder.imageSent)
+            }
             viewHolder.sentMessage.text = message.messageText
             if(message.emojiReact>=0){
 //                message.emojiReact = reactionsArray[message.emojiReact]
@@ -137,6 +146,11 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
             })
         } else {
             val viewHolder = holder as ReceiveViewHolder
+            if(message.imageUrl.isNotEmpty()){
+                holder.imageReceive.visibility = View.VISIBLE
+                holder.receiveMessage.visibility  = View.GONE
+                Glide.with(context).load(message.imageUrl).placeholder(R.drawable.image_placeholder).into(holder.imageReceive)
+            }
             viewHolder.receiveMessage.text = message.messageText
             if(message.emojiReact>=0){
 
