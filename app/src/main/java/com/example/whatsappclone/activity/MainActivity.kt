@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
     companion object{
         const val USERNAME_EXTRA = "com.example.whatsappclone.activity.userName"
         const val USERID_EXTRA = "com.example.whatsappclone.activity.userId"
+        const val USERIMAGE_EXTRA = "com.example.whatsappclone.activity.userImage"
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -281,6 +282,7 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
         val intent = Intent(this,ChatActivity::class.java)
         intent.putExtra(USERNAME_EXTRA,user.userName)
         intent.putExtra(USERID_EXTRA,user.userId)
+        intent.putExtra(USERIMAGE_EXTRA,user.profileImageUrl)
         startActivity(intent)
     }
 

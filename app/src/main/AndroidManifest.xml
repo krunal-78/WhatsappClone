@@ -14,8 +14,8 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
         <activity android:name=".activity.ChatActivity"
-            android:parentActivityName=".activity.MainActivity">
-
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
         </activity>
         <activity
             android:name=".activity.OTPactivity"

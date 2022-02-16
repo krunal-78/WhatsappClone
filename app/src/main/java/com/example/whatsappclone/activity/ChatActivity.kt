@@ -1,15 +1,17 @@
 package com.example.whatsappclone.activity
 
+import android.app.Notification
 import android.app.ProgressDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-
+import android.service.autofill.TextValueSanitizer
 import android.util.Log
 import android.view.View
 import com.example.whatsappclone.R
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import com.example.whatsappclone.adapters.MessageAdapter
@@ -22,7 +24,12 @@ import com.google.firebase.database.ValueEventListener
 import java.util.*
 import kotlin.collections.ArrayList
 import android.widget.Toast
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.widget.Toolbar
+import com.bumptech.glide.Glide
+import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.firebase.storage.FirebaseStorage
+import de.hdodenhof.circleimageview.CircleImageView
 import kotlin.collections.HashMap
 
 
@@ -40,6 +47,11 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var receiverUserId :String
     private lateinit var firebaseStorage : FirebaseStorage
     private lateinit var progressDialog: ProgressDialog
+    private lateinit var toolBar: Toolbar
+    private lateinit var userImageToolbar: CircleImageView
+    private lateinit var backArrow : ImageView
+    private lateinit var userNameToolbar : TextView
+    private lateinit var indicator : TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
@@ -49,6 +61,12 @@ class ChatActivity : AppCompatActivity() {
         camera = findViewById(R.id.camera)
         sendButton = findViewById(R.id.sendButton)
         recyclerView = findViewById(R.id.recyclerView)
+        toolBar = findViewById(R.id.toolBar)
+        userImageToolbar = findViewById(R.id.userImageToolbar)
+        backArrow = findViewById(R.id.backArrow)
+        userNameToolbar = findViewById(R.id.userNameToolbar)
+        indicator = findViewById(R.id.indicator)
+
 
         // for sending image
         progressDialog = ProgressDialog(this)
@@ -58,6 +76,9 @@ class ChatActivity : AppCompatActivity() {
 
         //get data from intent and set it to action bar;
         val userName = intent.getStringExtra(MainActivity.USERNAME_EXTRA)
+        // users profile image;
+        val userProfile = intent.getStringExtra(MainActivity.USERIMAGE_EXTRA)
+
         // receiver user id ;
         receiverUserId = intent.getStringExtra(MainActivity.USERID_EXTRA).toString()
 
@@ -73,11 +94,16 @@ class ChatActivity : AppCompatActivity() {
         recyclerView.adapter = messageAdapter
         firebaseDatabase = FirebaseDatabase.getInstance()
         firebaseStorage = FirebaseStorage.getInstance()
-        supportActionBar!!.title = userName
-
+//        supportActionBar!!.title = userName
+        // setting data in the tool bar;
+        setDataInToolBar(userName!!,userProfile!!)
         setUpRecyclerView()
     }
-
+    private fun setDataInToolBar(userName : String , userProfile : String){
+        userNameToolbar.text = userName
+        Glide.with(this).load(userProfile)
+            .placeholder(R.drawable.image_placeholder).into(userImageToolbar)
+    }
     fun onAttachmentClicked(view : View){
         val intent = Intent()
         intent.action = Intent.ACTION_GET_CONTENT
@@ -164,7 +190,7 @@ class ChatActivity : AppCompatActivity() {
                                 it
                             )
                         }
-                    // update last message in user's conversation also
+//                     update last message in user's conversation also
                     val lastMsgObject = hashMapOf<String,Any?>()
                     lastMsgObject["lastMessage"] = message.messageText
                     lastMsgObject["lastMessageTime"] = date.time
@@ -267,5 +293,9 @@ class ChatActivity : AppCompatActivity() {
                     Log.d("singInSuccess","can't set up message in recycler view because of error!")
                 }
             })
+    }
+
+    fun onBackArrowClicked(view: android.view.View) {
+        finish()
     }
 }
