@@ -5,7 +5,10 @@ import android.app.ProgressDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.service.autofill.TextValueSanitizer
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import com.example.whatsappclone.R
@@ -94,11 +97,59 @@ class ChatActivity : AppCompatActivity() {
         recyclerView.adapter = messageAdapter
         firebaseDatabase = FirebaseDatabase.getInstance()
         firebaseStorage = FirebaseStorage.getInstance()
+        // set user online if it is;
+        setOnline();
+        handleTyping();
 //        supportActionBar!!.title = userName
         // setting data in the tool bar;
         setDataInToolBar(userName!!,userProfile!!)
         setUpRecyclerView()
     }
+    // imp part doubt;
+    private fun handleTyping() {
+        val senderUserId = FirebaseAuth.getInstance().currentUser!!.uid
+        val handler = Handler()
+        messageInput.addTextChangedListener(object:TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                firebaseDatabase.reference.child("Presence").child(senderUserId).setValue("typing...")
+                handler.removeCallbacksAndMessages(null)
+                handler.postDelayed(userStoppedTyping,1000)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+            val userStoppedTyping = Runnable {
+                kotlin.run {
+                    firebaseDatabase.reference.child("Presence").child(senderUserId).setValue("Online")
+                }
+            }
+        })
+    }
+
+    private fun setOnline() {
+        firebaseDatabase.reference.child("Presence").child(receiverUserId).addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()){
+                    val onlineStatus = snapshot.getValue(String::class.java)
+                    if(onlineStatus!!.isNotEmpty()){
+                        indicator.text = "Online"
+                        indicator.visibility = View.VISIBLE
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("signInSuccess","cancelled because of error")
+            }
+
+        })
+    }
+
     private fun setDataInToolBar(userName : String , userProfile : String){
         userNameToolbar.text = userName
         Glide.with(this).load(userProfile)
@@ -294,8 +345,29 @@ class ChatActivity : AppCompatActivity() {
                 }
             })
     }
+    override fun onResume() {
+        super.onResume()
+        val currentUid = FirebaseAuth.getInstance().uid
+        firebaseDatabase.reference.child("Presence").child(currentUid!!).setValue("Online")
+    }
 
+//    override fun onStop() {
+//        super.onStop()
+//        val currentUid = FirebaseAuth.getInstance().uid
+//        firebaseDatabase.reference.child("Presence").child(currentUid!!).setValue("")
+//    }
     fun onBackArrowClicked(view: android.view.View) {
         finish()
+    }
+    override fun onUserLeaveHint() { // on home buttom click user will get offline
+        super.onUserLeaveHint()
+        val currentUid = FirebaseAuth.getInstance().uid
+        firebaseDatabase.reference.child("Presence").child(currentUid!!).setValue("")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val currentUid = FirebaseAuth.getInstance().uid
+        firebaseDatabase.reference.child("Presence").child(currentUid!!).setValue("")
     }
 }

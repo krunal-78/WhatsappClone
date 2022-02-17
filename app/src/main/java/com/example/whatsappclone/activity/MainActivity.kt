@@ -5,8 +5,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
 import com.example.whatsappclone.R
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -286,11 +285,40 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
         startActivity(intent)
     }
 
+    override fun onResume() {
+        super.onResume()
+        val currentUid = FirebaseAuth.getInstance().uid
+        firebaseDatabase.reference.child("Presence").child(currentUid!!).setValue("Online")
+    }
+
+    override fun onBackPressed() { // on back button click user will get offline
+        super.onBackPressed()
+        val currentUid = FirebaseAuth.getInstance().uid
+        firebaseDatabase.reference.child("Presence").child(currentUid!!).setValue("")
+        finish()
+    }
+
+    override fun onUserLeaveHint() { // on home buttom click user will get offline
+        super.onUserLeaveHint()
+        val currentUid = FirebaseAuth.getInstance().uid
+        firebaseDatabase.reference.child("Presence").child(currentUid!!).setValue("")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val currentUid = FirebaseAuth.getInstance().uid
+        firebaseDatabase.reference.child("Presence").child(currentUid!!).setValue("")
+    }
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        val currentUid = FirebaseAuth.getInstance().uid
+//        firebaseDatabase.reference.child("Presence").child(currentUid!!).setValue("")
+//    }
     private fun removeStatus(itemStatus : Status? , allStatus : ArrayList<Status>) {
         val date = Date()
         val currentTimeInHours = date.time/1000/60;
         val statusTimeInHours = itemStatus!!.timeStamp/1000/60;
-        if(currentTimeInHours-statusTimeInHours>=2){
+        if(currentTimeInHours-statusTimeInHours>=23){
             allStatus.remove(itemStatus)
             removeStatusFromDatabase(itemStatus)
             removeStatusFromStorage(itemStatus);
