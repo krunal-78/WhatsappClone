@@ -14,5 +14,6 @@
     <color name="greenDark">#285710</color>
     <color name="warning">#A60B0B</color>
     <color name="greenLight">#AFC8A2</color>
+    <color name="Name_in_message">#9766D3</color>
 
 </resources>

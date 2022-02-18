@@ -11,6 +11,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.view.animation.LinearInterpolator
 import com.example.whatsappclone.R
 import android.widget.EditText
 import android.widget.ImageView
@@ -29,6 +30,8 @@ import kotlin.collections.ArrayList
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.size
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.firebase.storage.FirebaseStorage
@@ -55,6 +58,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var backArrow : ImageView
     private lateinit var userNameToolbar : TextView
     private lateinit var indicator : TextView
+    private lateinit var layoutManager : LinearLayoutManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
@@ -94,6 +98,10 @@ class ChatActivity : AppCompatActivity() {
         //set the adapter;
         itemMessages = ArrayList()
         messageAdapter = MessageAdapter(this,itemMessages,senderRoom,receiverRoom)
+        // setting layout manager ;
+        layoutManager = LinearLayoutManager(this)
+        layoutManager.stackFromEnd = true // imp for scrolling , this will show last message first in the screen;
+        recyclerView.layoutManager = layoutManager
         recyclerView.adapter = messageAdapter
         firebaseDatabase = FirebaseDatabase.getInstance()
         firebaseStorage = FirebaseStorage.getInstance()
@@ -104,6 +112,8 @@ class ChatActivity : AppCompatActivity() {
         // setting data in the tool bar;
         setDataInToolBar(userName!!,userProfile!!)
         setUpRecyclerView()
+//        recyclerView.smoothScrollToPosition(recyclerView.adapter!!.itemCount)
+
     }
     // imp part doubt;
     private fun handleTyping() {
@@ -135,10 +145,14 @@ class ChatActivity : AppCompatActivity() {
         firebaseDatabase.reference.child("Presence").child(receiverUserId).addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 if(snapshot.exists()){
-                    val onlineStatus = snapshot.getValue(String::class.java)
-                    if(onlineStatus!!.isNotEmpty()){
-                        indicator.text = "Online"
+                    val Status = snapshot.getValue(String::class.java)
+                    if(Status!!.isNotEmpty()){
+                        indicator.text = Status
                         indicator.visibility = View.VISIBLE
+                    }
+                    else{
+                        indicator.text = ""
+                        indicator.visibility = View.GONE
                     }
                 }
             }
@@ -338,8 +352,9 @@ class ChatActivity : AppCompatActivity() {
                         }
                     }
                     messageAdapter.notifyDataSetChanged()
+                    // to show last message in the screen already scrolled;
+                    recyclerView.smoothScrollToPosition(recyclerView.adapter!!.itemCount)
                 }
-
                 override fun onCancelled(error: DatabaseError) {
                     Log.d("singInSuccess","can't set up message in recycler view because of error!")
                 }

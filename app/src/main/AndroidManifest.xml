@@ -13,15 +13,18 @@
         android:theme="@style/Theme.WhatsappClone"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".activity.ChatActivity"
+        <activity
+            android:name=".activity.GroupChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.ChatActivity"
             android:parentActivityName=".activity.MainActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
-        </activity>
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"></activity>
         <activity
             android:name=".activity.OTPactivity"
             android:label="PhoneNumber Verification"
             android:parentActivityName=".activity.PhoneNumberAuthentication"
-            android:theme="@style/Theme.WhatsappClone"></activity>
+            android:theme="@style/Theme.WhatsappClone" />
         <activity
             android:name=".activity.PhoneNumberAuthentication"
             android:theme="@style/Theme.WhatsappClone"

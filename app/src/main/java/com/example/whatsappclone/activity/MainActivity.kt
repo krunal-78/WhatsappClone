@@ -261,7 +261,9 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
                 Toast.makeText(this,"search clicked!",Toast.LENGTH_SHORT).show()
             }
             R.id.groups->{
-                Toast.makeText(this,"groups clicked!",Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this,"groups clicked!",Toast.LENGTH_SHORT).show()
+                val intent = Intent(this,GroupChatActivity::class.java)
+                startActivity(intent)
             }
             R.id.settings->{
                 Toast.makeText(this,"settings clicked!",Toast.LENGTH_SHORT).show()
