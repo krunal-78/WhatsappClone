@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ImageShowView">
+
+        <attr name="selectedImage" format="reference"/>
+        <attr name="Caption" format="string"/>
+        <attr name="buttonImage" format="reference"/>
+    </declare-styleable>
+</resources>

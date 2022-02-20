@@ -1,22 +1,23 @@
 package com.example.whatsappclone.activity
 
-import android.app.Notification
+import android.R.*
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.service.autofill.TextValueSanitizer
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import android.view.animation.LinearInterpolator
 import com.example.whatsappclone.R
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Button
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
 import com.example.whatsappclone.adapters.MessageAdapter
 import com.example.whatsappclone.models.Message
@@ -28,15 +29,11 @@ import com.google.firebase.database.ValueEventListener
 import java.util.*
 import kotlin.collections.ArrayList
 import android.widget.Toast
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.size
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.firebase.storage.FirebaseStorage
 import de.hdodenhof.circleimageview.CircleImageView
-import kotlin.collections.HashMap
 
 
 class ChatActivity : AppCompatActivity() {
@@ -59,6 +56,14 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var userNameToolbar : TextView
     private lateinit var indicator : TextView
     private lateinit var layoutManager : LinearLayoutManager
+    private lateinit var userName : String
+    private lateinit var userProfile: String
+    private lateinit var progressBar : ProgressBar
+    companion object{
+        const val SELECTED_IMAGE_PATH_EXTRA = "com.example.whatsappclone.selected_image_path"
+        const val USER_NAME_EXTRA = "com.example.whatsappclone.user_name"
+        const val USER_PROFILE_EXTRA = "com.example.whatsappclone.user_profile"
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
@@ -73,7 +78,7 @@ class ChatActivity : AppCompatActivity() {
         backArrow = findViewById(R.id.backArrow)
         userNameToolbar = findViewById(R.id.userNameToolbar)
         indicator = findViewById(R.id.indicator)
-
+        progressBar = findViewById(R.id.progressBar)
 
         // for sending image
         progressDialog = ProgressDialog(this)
@@ -82,9 +87,9 @@ class ChatActivity : AppCompatActivity() {
 
 
         //get data from intent and set it to action bar;
-        val userName = intent.getStringExtra(MainActivity.USERNAME_EXTRA)
+        userName = intent.getStringExtra(MainActivity.USERNAME_EXTRA).toString()
         // users profile image;
-        val userProfile = intent.getStringExtra(MainActivity.USERIMAGE_EXTRA)
+        userProfile = intent.getStringExtra(MainActivity.USERIMAGE_EXTRA).toString()
 
         // receiver user id ;
         receiverUserId = intent.getStringExtra(MainActivity.USERID_EXTRA).toString()
@@ -110,7 +115,7 @@ class ChatActivity : AppCompatActivity() {
         handleTyping();
 //        supportActionBar!!.title = userName
         // setting data in the tool bar;
-        setDataInToolBar(userName!!,userProfile!!)
+        setDataInToolBar(userName,userProfile)
         setUpRecyclerView()
 //        recyclerView.smoothScrollToPosition(recyclerView.adapter!!.itemCount)
 
@@ -188,16 +193,13 @@ class ChatActivity : AppCompatActivity() {
                         .child(currTime.toString())
                     // putfile on that time;
                     if (selectedImage != null) {
-                        progressDialog.show()
+                        progressBar.visibility = View.VISIBLE
                         storageReference.putFile(selectedImage).addOnCompleteListener {
-                            progressDialog.dismiss()
                             if(it.isSuccessful){
                                 storageReference.downloadUrl.addOnSuccessListener {
                                     val selectedImagePath = it.toString()
-//                                    Toast.makeText(this,selectedImagePath,Toast.LENGTH_SHORT).show()
-                                // send image also in message;
-                                    sendImageWithMessage(selectedImagePath)
-
+                                    progressBar.visibility = View.GONE
+                                    handleCaptionWithDialog(selectedImagePath);
                                 }.addOnFailureListener{
                                     Log.d("signInSuccess","can't download url!")
                                 }
@@ -213,12 +215,42 @@ class ChatActivity : AppCompatActivity() {
             }
         }
     }
-    private fun sendImageWithMessage(selectedImagePath : String){
+
+    private fun handleCaptionWithDialog(selectedImagePath: String){
+        // create view for custom dialog;
+        val view = LayoutInflater.from(this).inflate(R.layout.show_image_dialog,null)
+        // make buttons that are in the layout;
+        val sendImage = view.findViewById<Button>(R.id.sendImage)
+        val cancelButton = view.findViewById<Button>(R.id.cancelButton)
+        val selectedImage = view.findViewById<ImageView>(R.id.selectedImage)
+        val inputCaption = view.findViewById<EditText>(R.id.inputCaption)
+        Glide.with(this).load(selectedImagePath).placeholder(R.drawable.image_placeholder).into(selectedImage)
+
+
+
+        // create custom image dialog;
+        val imageShowDialog = AlertDialog.Builder(this)
+            .setView(view).setCancelable(false).create()
+        imageShowDialog.window!!.setBackgroundDrawableResource(android.R.color.transparent)
+        imageShowDialog.show()
+        sendImage.setOnClickListener {
+//            Toast.makeText(this,"SendButton",Toast.LENGTH_SHORT).show()
+            // send image if clicked send;
+            sendImageWithMessage(selectedImagePath,inputCaption.text.toString())
+            imageShowDialog.dismiss()
+        }
+        cancelButton.setOnClickListener {
+//            Toast.makeText(this,"CancelButton",Toast.LENGTH_SHORT).show()
+            imageShowDialog.dismiss()
+        }
+    }
+
+    private fun sendImageWithMessage(selectedImagePath: String,inputCaption:String){
+        progressDialog.show()
         val senderUserId = FirebaseAuth.getInstance().currentUser!!.uid
-        val messageText = "photo"
         val date = Date()
         // three things message text k sender uid and time;
-        val message = Message(messageText,senderUserId,date.time)
+        val message = Message(inputCaption, senderUserId, date.time)
         //we have to give same id to send and received msg so that we can easily makr change in both;
         val uniqueId = firebaseDatabase.reference.push().key
 //        message.messageText = "photo"
@@ -229,7 +261,6 @@ class ChatActivity : AppCompatActivity() {
         lastMsgObject["lastMessage"] = message.messageText
         lastMsgObject["lastMessageTime"] = date.time
 
-        if(messageText.isNotEmpty()){
             firebaseDatabase.reference.child("Chats").child(senderRoom)
                 .updateChildren(lastMsgObject)
             firebaseDatabase.reference.child("Chats").child(receiverRoom)
@@ -247,6 +278,7 @@ class ChatActivity : AppCompatActivity() {
                         .child(uniqueId!!)
                         .setValue(message)
                         .addOnSuccessListener {
+                            progressDialog.dismiss()
                             Log.d("signInSuccess", "message stored in receiverRoom successfully!")
                         }.addOnFailureListener{
                             Log.d(
@@ -272,10 +304,6 @@ class ChatActivity : AppCompatActivity() {
                 }.addOnFailureListener{
                     Log.d("singInSuccess", "message can't stored senderRoom successfully!", it)
                 }
-        }
-        else{
-            Toast.makeText(this,"Can't send empty message",Toast.LENGTH_SHORT).show()
-        }
     }
     fun onSendButtonClicked(view: View) {
         val senderUserId = FirebaseAuth.getInstance().currentUser!!.uid

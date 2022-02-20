@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:cardCornerRadius="15dp"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Do you want to share this Image?"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:fontFamily="@font/roboto_light"
+                android:textSize="16sp"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="10dp"
+                />
+            <ImageView
+                android:id="@+id/selectedImage"
+                android:src="@drawable/avatar"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                />
+
+            <EditText
+                android:id="@+id/inputCaption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:hint="@string/enter_a_caption"
+                android:layout_margin="10dp"
+                android:ellipsize="end"
+                android:layout_gravity="center"
+                 />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_margin="5dp"
+                >
+
+                <Button
+                    android:id="@+id/sendImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Send"
+                    app:cornerRadius="15dp"
+                    android:layout_margin="3dp"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/green"
+                    />
+
+                <Button
+                    android:id="@+id/cancelButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Cancel"
+                    app:cornerRadius="15dp"
+                    android:layout_margin="3dp"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/green"
+                    />
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

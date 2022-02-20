@@ -19,7 +19,7 @@
         <activity
             android:name=".activity.ChatActivity"
             android:parentActivityName=".activity.MainActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"></activity>
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
         <activity
             android:name=".activity.OTPactivity"
             android:label="PhoneNumber Verification"

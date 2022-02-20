@@ -16,4 +16,5 @@
     <string name="type_a_message">Type a message...</string>
     <string name="sent_message">Sent Message</string>
     <string name="received_message">Received message</string>
+    <string name="enter_a_caption">Enter a caption</string>
 </resources>

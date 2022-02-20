@@ -1,18 +1,18 @@
 package com.example.whatsappclone.activity
 
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.whatsappclone.R
 import com.example.whatsappclone.adapters.GroupMessageAdapter
 import com.example.whatsappclone.adapters.MessageAdapter
@@ -41,6 +41,8 @@ class GroupChatActivity : AppCompatActivity() {
     private lateinit var firebaseStorage : FirebaseStorage
     private lateinit var progressDialog: ProgressDialog
     private lateinit var layoutManager : LinearLayoutManager
+    private lateinit var progressBar : ProgressBar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_group_chat)
@@ -50,7 +52,7 @@ class GroupChatActivity : AppCompatActivity() {
         camera = findViewById(R.id.camera)
         sendButton = findViewById(R.id.sendButton)
         recyclerView = findViewById(R.id.recyclerView)
-
+        progressBar = findViewById(R.id.progressBar)
         supportActionBar!!.title = "Group Chat"
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setDisplayShowHomeEnabled(true)
@@ -148,7 +150,7 @@ class GroupChatActivity : AppCompatActivity() {
                         .child(currTime.toString())
                     // putfile on that time;
                     if (selectedImage != null) {
-                        progressDialog.show()
+                        progressBar.visibility = View.VISIBLE
                         storageReference.putFile(selectedImage).addOnCompleteListener {
                             progressDialog.dismiss()
                             if(it.isSuccessful){
@@ -156,7 +158,8 @@ class GroupChatActivity : AppCompatActivity() {
                                     val selectedImagePath = it.toString()
 //                                    Toast.makeText(this,selectedImagePath,Toast.LENGTH_SHORT).show()
                                     // send image also in message;
-                                    sendImageWithMessage(selectedImagePath)
+                                    progressBar.visibility = View.GONE
+                                    handleCaptionWithDialog(selectedImagePath);
 
                                 }.addOnFailureListener{
                                     Log.d("signInSuccess","can't download url!")
@@ -174,12 +177,40 @@ class GroupChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendImageWithMessage(selectedImagePath : String){
+    private fun handleCaptionWithDialog(selectedImagePath: String){
+        // create view for custom dialog;
+        val view = LayoutInflater.from(this).inflate(R.layout.show_image_dialog,null)
+        // make buttons that are in the layout;
+        val sendImage = view.findViewById<Button>(R.id.sendImage)
+        val cancelButton = view.findViewById<Button>(R.id.cancelButton)
+        val selectedImage = view.findViewById<ImageView>(R.id.selectedImage)
+        val inputCaption = view.findViewById<EditText>(R.id.inputCaption)
+        Glide.with(this).load(selectedImagePath).placeholder(R.drawable.image_placeholder).into(selectedImage)
+
+
+
+        // create custom image dialog;
+        val imageShowDialog = AlertDialog.Builder(this)
+            .setView(view).setCancelable(false).create()
+        imageShowDialog.window!!.setBackgroundDrawableResource(android.R.color.transparent)
+        imageShowDialog.show()
+        sendImage.setOnClickListener {
+//            Toast.makeText(this,"SendButton",Toast.LENGTH_SHORT).show()
+            // send image if clicked send;
+            sendImageWithMessage(selectedImagePath,inputCaption.text.toString())
+            imageShowDialog.dismiss()
+        }
+        cancelButton.setOnClickListener {
+//            Toast.makeText(this,"CancelButton",Toast.LENGTH_SHORT).show()
+            imageShowDialog.dismiss()
+        }
+    }
+    private fun sendImageWithMessage(selectedImagePath : String,inputCaption:String){
         val senderUserId = FirebaseAuth.getInstance().currentUser!!.uid
-        val messageText = "photo"
+        progressDialog.show()
         val date = Date()
         // three things message text k sender uid and time;
-        val message = Message(messageText,senderUserId,date.time)
+        val message = Message(inputCaption,senderUserId,date.time)
         //we have to give same id to send and received msg so that we can easily makr change in both;
 //        val uniqueId = firebaseDatabase.reference.push().key
 //        message.messageText = "photo"
@@ -188,10 +219,29 @@ class GroupChatActivity : AppCompatActivity() {
         firebaseDatabase.reference.child("Public")
             .push().setValue(message)
             .addOnSuccessListener {
+                progressDialog.dismiss()
                 Log.d("signInSuccess", "message stored in public successfully!")
             }
             .addOnFailureListener{
                 Log.d("signInSuccess", "message could not in public successfully!")
             }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val currentUid = FirebaseAuth.getInstance().uid
+        firebaseDatabase.reference.child("Presence").child(currentUid!!).setValue("Online")
+    }
+
+    override fun onUserLeaveHint() { // on home buttom click user will get offline
+        super.onUserLeaveHint()
+        val currentUid = FirebaseAuth.getInstance().uid
+        firebaseDatabase.reference.child("Presence").child(currentUid!!).setValue("")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val currentUid = FirebaseAuth.getInstance().uid
+        firebaseDatabase.reference.child("Presence").child(currentUid!!).setValue("")
     }
 }

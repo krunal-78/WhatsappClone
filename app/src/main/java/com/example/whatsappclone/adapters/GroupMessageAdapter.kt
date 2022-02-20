@@ -128,6 +128,7 @@ class GroupMessageAdapter(private val context : Context, private val itemMessage
             val viewHolder = holder as SentViewHolder
             if(message.imageUrl.isNotEmpty()){
                 viewHolder.imageSent.visibility = View.VISIBLE
+                if(message.messageText!!.isEmpty())
                 viewHolder.sentMessage.visibility = View.GONE
                 Glide.with(context).load(message.imageUrl).placeholder(R.drawable.image_placeholder).into(viewHolder.imageSent)
             }
@@ -196,6 +197,7 @@ class GroupMessageAdapter(private val context : Context, private val itemMessage
             val viewHolder = holder as ReceiveViewHolder
             if(message.imageUrl.isNotEmpty()){
                 viewHolder.imageReceive.visibility = View.VISIBLE
+                if(message.messageText!!.isEmpty())
                 viewHolder.receiveMessage.visibility  = View.GONE
                 Glide.with(context).load(message.imageUrl).placeholder(R.drawable.image_placeholder).into(viewHolder.imageReceive)
             }
