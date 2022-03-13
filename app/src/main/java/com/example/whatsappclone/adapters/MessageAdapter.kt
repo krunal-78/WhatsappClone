@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import android.widget.TextView
 import android.widget.ImageView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.bumptech.glide.Glide
 
 import com.example.whatsappclone.R
@@ -26,6 +27,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import org.w3c.dom.Text
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MessageAdapter(private val context : Context,private val itemMessages : ArrayList<Message>,private val senderRoom:String,private val receiverRoom:String) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -37,12 +41,14 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
         val sentMessage: TextView = itemView.findViewById(R.id.sentMessage)
         val emojiReactSent: ImageView = itemView.findViewById(R.id.emojiReactSent)
         val imageSent : ImageView = itemView.findViewById(R.id.imageSent)
+        val sendMessageTime : TextView = itemView.findViewById(R.id.sendMessageTime)
     }
 
     class ReceiveViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val receiveMessage: TextView = itemView.findViewById(R.id.receiveMessage)
         val emojiReactReceive: ImageView = itemView.findViewById(R.id.emojiReactReceive)
         val imageReceive : ImageView = itemView.findViewById(R.id.imageReceive)
+        val receiveMessageTime : TextView = itemView.findViewById(R.id.receiveMessageTime)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -68,7 +74,7 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
         return super.getItemViewType(position)
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "SimpleDateFormat")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         //create object of Message class at position;
         val message = itemMessages[position]
@@ -124,12 +130,20 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
         if (holder.javaClass == SentViewHolder::class.java) {
             val viewHolder = holder as SentViewHolder
             if(message.imageUrl.isNotEmpty()){
+                Glide.with(context).load(message.imageUrl).placeholder(R.drawable.image_placeholder).into(viewHolder.imageSent)
                 viewHolder.imageSent.visibility = View.VISIBLE
                 if(message.messageText=="")
                 viewHolder.sentMessage.visibility = View.GONE
-                Glide.with(context).load(message.imageUrl).placeholder(R.drawable.image_placeholder).into(viewHolder.imageSent)
+                else viewHolder.sentMessage.visibility = View.VISIBLE
             }
+            else viewHolder.imageSent.visibility = View.GONE
             viewHolder.sentMessage.text = message.messageText
+
+            // set send message time;
+            val simpleDateFormat = SimpleDateFormat("hh:mm a")
+            viewHolder.sendMessageTime.text = simpleDateFormat.format(Date(message.sentTime))
+
+
             if(message.emojiReact>=0){
 //                message.emojiReact = reactionsArray[message.emojiReact]
                 viewHolder.emojiReactSent.setImageResource(reactionsArray[message.emojiReact])
@@ -148,12 +162,12 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
                 }
 
             })
-//            viewHolder.imageSent.setOnLongClickListener(object :View.OnLongClickListener{
-//                override fun onLongClick(v: View?): Boolean {
-//                    isLongClickedImg = true
-//                    return false
-//                }
-//            })
+            viewHolder.imageSent.setOnLongClickListener(object :View.OnLongClickListener{
+                override fun onLongClick(v: View?): Boolean {
+                    isLongClickedImg = true
+                    return false
+                }
+            })
             viewHolder.sentMessage.setOnTouchListener(object : View.OnTouchListener {
                 override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                     if(isLongClicked){
@@ -162,23 +176,25 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
                     return false
                 }
             })
-//            viewHolder.imageSent.setOnTouchListener(object :View.OnTouchListener{
-//                override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-//                    if(isLongClickedImg){
-//                        popUp.onTouch(v!!,event!!)
-//                    }
-//                    return false
-//                }
-//            })
+            viewHolder.imageSent.setOnTouchListener(object :View.OnTouchListener{
+                override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                    if(isLongClickedImg){
+                        popUp.onTouch(v!!,event!!)
+                    }
+                    return false
+                }
+            })
 
         } else {
             val viewHolder = holder as ReceiveViewHolder
             if(message.imageUrl.isNotEmpty()){
+                Glide.with(context).load(message.imageUrl).placeholder(R.drawable.image_placeholder).into(viewHolder.imageReceive)
                 viewHolder.imageReceive.visibility = View.VISIBLE
                 if(message.messageText=="")
                 viewHolder.receiveMessage.visibility  = View.GONE
-                Glide.with(context).load(message.imageUrl).placeholder(R.drawable.image_placeholder).into(viewHolder.imageReceive)
+                else viewHolder.receiveMessage.visibility = View.GONE
             }
+            else viewHolder.imageReceive.visibility = View.GONE
             viewHolder.receiveMessage.text = message.messageText
             if(message.emojiReact>=0){
 
@@ -189,6 +205,11 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
             else{
                 viewHolder.emojiReactReceive.visibility = View.GONE
             }
+
+            // set receive message time;
+            val simpleDateFormat = SimpleDateFormat("hh:mm a")
+            viewHolder.receiveMessageTime.text = simpleDateFormat.format(Date(message.sentTime))
+
             var isLongclicked = false
             var isLongClickedImg = false
             viewHolder.receiveMessage.setOnLongClickListener(object : View.OnLongClickListener{
@@ -197,12 +218,12 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
                     return false
                 }
             })
-//            viewHolder.imageReceive.setOnLongClickListener(object :View.OnLongClickListener{
-//                override fun onLongClick(v: View?): Boolean {
-//                    isLongClickedImg = true
-//                    return false;
-//                }
-//            })
+            viewHolder.imageReceive.setOnLongClickListener(object :View.OnLongClickListener{
+                override fun onLongClick(v: View?): Boolean {
+                    isLongClickedImg = true
+                    return false;
+                }
+            })
             viewHolder.receiveMessage.setOnTouchListener(object : View.OnTouchListener {
                 override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                     if(isLongclicked){
@@ -211,14 +232,14 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
                     return false
                 }
             })
-//            viewHolder.imageReceive.setOnTouchListener(object :View.OnTouchListener{
-//                override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-//                    if(isLongClickedImg){
-//                        popUp.onTouch(v!!,event!!)
-//                    }
-//                    return false
-//                }
-//            })
+            viewHolder.imageReceive.setOnTouchListener(object :View.OnTouchListener{
+                override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                    if(isLongClickedImg){
+                        popUp.onTouch(v!!,event!!)
+                    }
+                    return false
+                }
+            })
         }
     }
 

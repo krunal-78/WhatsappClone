@@ -181,8 +181,8 @@ class GroupChatActivity : AppCompatActivity() {
         // create view for custom dialog;
         val view = LayoutInflater.from(this).inflate(R.layout.show_image_dialog,null)
         // make buttons that are in the layout;
-        val sendImage = view.findViewById<Button>(R.id.sendImage)
-        val cancelButton = view.findViewById<Button>(R.id.cancelButton)
+        val sendImage = view.findViewById<ImageView>(R.id.sendImage)
+        val cancelButton = view.findViewById<ImageView>(R.id.cancelButton)
         val selectedImage = view.findViewById<ImageView>(R.id.selectedImage)
         val inputCaption = view.findViewById<EditText>(R.id.inputCaption)
         Glide.with(this).load(selectedImagePath).placeholder(R.drawable.image_placeholder).into(selectedImage)

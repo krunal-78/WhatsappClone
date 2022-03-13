@@ -19,7 +19,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-
+            <ImageView
+                android:id="@+id/cancelButton"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:src="@drawable/close_for_dialog"
+                />
             <TextView
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
@@ -41,48 +46,56 @@
                 android:layout_margin="10dp"
                 />
 
-            <EditText
-                android:id="@+id/inputCaption"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:hint="@string/enter_a_caption"
-                android:layout_margin="10dp"
-                android:ellipsize="end"
-                android:layout_gravity="center"
-                 />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:layout_margin="5dp"
+                android:layout_height="45dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:cardCornerRadius="30dp"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="42dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="50dp"
                 >
 
-                <Button
-                    android:id="@+id/sendImage"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/linearLayout"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Send"
-                    app:cornerRadius="15dp"
-                    android:layout_margin="3dp"
-                    android:textColor="@color/white"
-                    android:backgroundTint="@color/green"
-                    />
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/cancelButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Cancel"
-                    app:cornerRadius="15dp"
-                    android:layout_margin="3dp"
-                    android:textColor="@color/white"
-                    android:backgroundTint="@color/green"
-                    />
-            </LinearLayout>
+                    <EditText
+                        android:id="@+id/inputCaption"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginLeft="10dp"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/type_a_message"
+                        android:inputType="textMultiLine"
+                        android:textColorHint="#212121"
+                        android:ellipsize="end"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:id="@+id/sendImage"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:src="@drawable/send_button"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginRight="2dp"
+                        android:background="@drawable/circle_green"
+                        android:padding="8dp"
+                        android:onClick="onSendButtonClicked"
+                        />
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

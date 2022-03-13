@@ -318,8 +318,8 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
 //    }
     private fun removeStatus(itemStatus : Status? , allStatus : ArrayList<Status>) {
         val date = Date()
-        val currentTimeInHours = date.time/1000/60;
-        val statusTimeInHours = itemStatus!!.timeStamp/1000/60;
+        val currentTimeInHours = date.time/1000/60/60;
+        val statusTimeInHours = itemStatus!!.timeStamp/1000/60/60;
         if(currentTimeInHours-statusTimeInHours>=23){
             allStatus.remove(itemStatus)
             removeStatusFromDatabase(itemStatus)

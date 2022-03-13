@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
 
     <LinearLayout
         android:id="@+id/linear_vertical"
@@ -21,8 +24,15 @@
             android:src="@drawable/avatar"
             android:scaleType="centerCrop"
             android:layout_margin="8dp"
-            android:visibility="gone"
+            android:visibility="visible"
             />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        tools:layout_editor_absoluteX="287dp"
+        tools:layout_editor_absoluteY="6dp">
+
         <TextView
             android:id="@+id/sentMessage"
             android:maxWidth="300dp"
@@ -36,10 +46,21 @@
             android:paddingBottom="8dp"
             android:paddingLeft="10dp"
             android:textColor="#212121"
-            android:textSize="15sp"
+            android:textSize="16sp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="5dp"
             />
+        <TextView
+            android:id="@+id/sendMessageTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10:10 AM"
+            android:layout_gravity="bottom"
+            android:textColor="@color/greyDark"
+            android:textSize="12sp"
+            android:padding="1dp"
+            />
+    </LinearLayout>
     </LinearLayout>
 
 
