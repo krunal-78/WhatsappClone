@@ -1,5 +1,6 @@
 package com.example.whatsappclone.activity
 
+import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -9,9 +10,12 @@ import android.view.*
 import com.example.whatsappclone.R
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import android.widget.ProgressBar
+import android.widget.ImageView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.cooltechworks.views.shimmer.ShimmerRecyclerView
 import com.example.whatsappclone.adapters.TopStatusAdapter
 import com.example.whatsappclone.adapters.UsersAdapter
@@ -28,6 +32,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
 
@@ -42,6 +47,7 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
     private lateinit var topStatusAdapter: TopStatusAdapter
     private lateinit var progressDialog : ProgressDialog
     private lateinit var currentUser : User
+    private lateinit var progressBar : ProgressBar
     companion object{
         const val USERNAME_EXTRA = "com.example.whatsappclone.activity.userName"
         const val USERID_EXTRA = "com.example.whatsappclone.activity.userId"
@@ -55,6 +61,7 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
         bottomNavigationBar = findViewById(R.id.bottomNavigationBar)
         recyclerView = findViewById(R.id.recyclerView)
         topStatusRecyclerView = findViewById(R.id.topStatusRecyclerView)
+        progressBar = findViewById(R.id.progressBar)
 
         // set progress dialog;
         progressDialog = ProgressDialog(this)
@@ -180,7 +187,7 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
         // if an image is selected then upload it to firebase storage;
         if(data!=null){
             if(data.data!=null){
-                progressDialog.show()
+                progressBar.visibility = View.VISIBLE
                 val firebaseStorage = FirebaseStorage.getInstance()
                 // for unique id node we will pass current time;
                 val date = Date()
@@ -190,36 +197,9 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
                     //if file is uploaded successfully then download;
                     if(it.isSuccessful){
                         storageReference.downloadUrl.addOnSuccessListener {
-                            // make object of userStatus to store it in database;
-                            val userName = currentUser.userName
-                            val userProfilePicture = currentUser.profileImageUrl
-                            val lastUpdatedTime = date.time
-                            val userStatus = UserStatus(userName,userProfilePicture,lastUpdatedTime)
-
-                            //now we want to update status all time so make a hashMap;
-                            val userStatusHashMap = hashMapOf<String,Any?>()
-                            userStatusHashMap["userName"] = userStatus.userName
-                            userStatusHashMap["userProfilePicture"] = userStatus.userProfilePicture
-                            userStatusHashMap["lastUpdatedTime"] = userStatus.lastUpdatedTime
-
-                            //make a status object also to add status in arraylist;
+                            progressBar.visibility = View.GONE
                             val imageUrl = it.toString() // image url that is downloaded from database successfully;
-                            val status = Status(imageUrl,userStatus.lastUpdatedTime)
-                            val statusId = FirebaseAuth.getInstance().currentUser!!.uid + status.timeStamp
-
-                            // now update the userStatus in database;
-                            firebaseDatabase.reference.child("Stories")
-                                .child(FirebaseAuth.getInstance().currentUser!!.uid)
-                                .updateChildren(userStatusHashMap)
-                            //now add status to the user's status array list in database;
-                            firebaseDatabase.reference.child("Stories")
-                                .child(FirebaseAuth.getInstance().currentUser!!.uid)
-                                .child("allStatus")
-                                .child(statusId)
-                                .setValue(status)
-                            // push will add node of unique id;
-
-                            progressDialog.dismiss()
+                            handleStatusDialog(imageUrl)
                             Log.d("signInSuccess","downloaded status from storage successfully!")
 
                         }.addOnFailureListener{
@@ -235,8 +215,65 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
             }
         }
     }
+    private fun sendStatusImage(selectedImagePath: String){
+        progressDialog.show()
+        // make object of userStatus to store it in database;
+        val date = Date()
+        val userName = currentUser.userName
+        val userProfilePicture = currentUser.profileImageUrl
+        val lastUpdatedTime = date.time
+        val userStatus = UserStatus(userName,userProfilePicture,lastUpdatedTime)
+
+        //now we want to update status all time so make a hashMap;
+        val userStatusHashMap = hashMapOf<String,Any?>()
+        userStatusHashMap["userName"] = userStatus.userName
+        userStatusHashMap["userProfilePicture"] = userStatus.userProfilePicture
+        userStatusHashMap["lastUpdatedTime"] = userStatus.lastUpdatedTime
+
+        //make a status object also to add status in arraylist;
+
+        val status = Status(selectedImagePath,userStatus.lastUpdatedTime)
+        val statusId = FirebaseAuth.getInstance().currentUser!!.uid + status.timeStamp
+
+        // now update the userStatus in database;
+        firebaseDatabase.reference.child("Stories")
+            .child(FirebaseAuth.getInstance().currentUser!!.uid)
+            .updateChildren(userStatusHashMap)
+        //now add status to the user's status array list in database;
+        firebaseDatabase.reference.child("Stories")
+            .child(FirebaseAuth.getInstance().currentUser!!.uid)
+            .child("allStatus")
+            .child(statusId)
+            .setValue(status)
+        // push will add node of unique id;
+        progressDialog.dismiss()
+    }
+    private fun handleStatusDialog(selectedImagePath : String){
+        // make view for show status dialog;
+        val view = LayoutInflater.from(this).inflate(R.layout.show_image_status_dialog,null)
+        // make buttons and views that are in layout;
+        val sendImage = view.findViewById<ImageView>(R.id.sendImage)
+        val cancelButton = view.findViewById<ImageView>(R.id.cancelButton)
+        val selectedImage = view.findViewById<ImageView>(R.id.selectedImage)
+        // load image in image view;
+        Glide.with(this).load(selectedImagePath).placeholder(R.drawable.image_placeholder).into(selectedImage)
+
+        // create custom dialog with view;
+        val statusImageShowDialog = AlertDialog.Builder(this)
+            .setView(view).setCancelable(false).create()
+        statusImageShowDialog.show()
+        sendImage.setOnClickListener{
+            // upload status;
+            sendStatusImage(selectedImagePath)
+            statusImageShowDialog.dismiss()
+        }
+        cancelButton.setOnClickListener{
+            statusImageShowDialog.dismiss()
+        }
+    }
     private fun fetchDataInRecyclerView(){
         firebaseDatabase.reference.child("Users").addValueEventListener(object : ValueEventListener{
+            @SuppressLint("NotifyDataSetChanged")
             override fun onDataChange(snapshot: DataSnapshot) {
                 itemUsers.clear()
                 snapshot.children.forEach{
@@ -318,8 +355,9 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
 //    }
     private fun removeStatus(itemStatus : Status? , allStatus : ArrayList<Status>) {
         val date = Date()
-        val currentTimeInHours = date.time/1000/60/60;
-        val statusTimeInHours = itemStatus!!.timeStamp/1000/60/60;
+        // imp;
+        val currentTimeInHours = TimeUnit.MILLISECONDS.toHours(date.time)
+        val statusTimeInHours = TimeUnit.MILLISECONDS.toHours(itemStatus!!.timeStamp)
         if(currentTimeInHours-statusTimeInHours>=23){
             allStatus.remove(itemStatus)
             removeStatusFromDatabase(itemStatus)

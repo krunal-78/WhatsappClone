@@ -87,8 +87,8 @@ class GroupChatActivity : AppCompatActivity() {
     }
     // on back click close activity;
     override fun onSupportNavigateUp(): Boolean {
-        return super.onSupportNavigateUp()
         finish()
+        return super.onSupportNavigateUp()
     }
 
     fun onSendButtonClicked(view: android.view.View) {
@@ -100,14 +100,16 @@ class GroupChatActivity : AppCompatActivity() {
         val message = Message(messageText, senderUserId,date.time)
         //we have to give same id to send and received msg so that we can easily makr change in both;
         val uniqueId = firebaseDatabase.reference.push().key
+        if(message.messageText!!.isNotEmpty()) {
+            firebaseDatabase.reference.child("Public").child(uniqueId!!).setValue(message)
+                .addOnSuccessListener {
+                    Log.d("signInSuccess", "message stored successfully in public!")
 
-        firebaseDatabase.reference.child("Public").child(uniqueId!!).setValue(message)
-            .addOnSuccessListener {
-                Log.d("signInSuccess", "message stored successfully in public!")
-
-            }.addOnFailureListener{
-                Log.d("signInSuccess", "message could not stored successfully in public!",it)
-            }
+                }.addOnFailureListener {
+                    Log.d("signInSuccess", "message could not stored successfully in public!", it)
+                }
+        }
+        else Toast.makeText(this,"Can't send empty message!",Toast.LENGTH_SHORT).show()
     }
 
     private fun setUpRecyclerView(){

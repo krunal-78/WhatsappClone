@@ -192,7 +192,7 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
                 viewHolder.imageReceive.visibility = View.VISIBLE
                 if(message.messageText=="")
                 viewHolder.receiveMessage.visibility  = View.GONE
-                else viewHolder.receiveMessage.visibility = View.GONE
+                else viewHolder.receiveMessage.visibility = View.VISIBLE
             }
             else viewHolder.imageReceive.visibility = View.GONE
             viewHolder.receiveMessage.text = message.messageText

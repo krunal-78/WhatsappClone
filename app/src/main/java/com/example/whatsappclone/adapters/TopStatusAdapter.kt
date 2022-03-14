@@ -49,7 +49,6 @@ class TopStatusAdapter(private val context : Context , private val itemUserStatu
         holder.userNameInStatus.text = userStatus.userName
         //now set the count of the status in circular status view;
         holder.circularStatusView.setPortionsCount(userStatus.allUserStatus!!.size)
-
         holder.circularStatusView.setOnClickListener{
             val myStories = ArrayList<MyStory>()
             // now get all statuses
