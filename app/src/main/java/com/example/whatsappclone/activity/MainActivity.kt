@@ -30,10 +30,12 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 
 class MainActivity : AppCompatActivity(),IUsersAdapter {
@@ -48,10 +50,12 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
     private lateinit var progressDialog : ProgressDialog
     private lateinit var currentUser : User
     private lateinit var progressBar : ProgressBar
+    private lateinit var firebaseMessaging: FirebaseMessaging
     companion object{
         const val USERNAME_EXTRA = "com.example.whatsappclone.activity.userName"
         const val USERID_EXTRA = "com.example.whatsappclone.activity.userId"
         const val USERIMAGE_EXTRA = "com.example.whatsappclone.activity.userImage"
+        const val USERTOKEN_EXTRA = "com.example.whatsappclone.activity.token"
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +73,10 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
         progressDialog.setCancelable(false)
 
         firebaseDatabase = FirebaseDatabase.getInstance()
+        firebaseMessaging = FirebaseMessaging.getInstance()
 
+        // retrive current token for notification;
+        retriveCurrentTokenForNotification()
         itemUsers = ArrayList<User>()
         itemUserStatus = ArrayList<UserStatus>()
         // set the user's adapter
@@ -98,6 +105,21 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
         //fetch data from database for top status recycler view;
         fetchDataInTopStatusRecyclerView()
 
+    }
+
+    private fun retriveCurrentTokenForNotification(){
+        firebaseMessaging.token.addOnSuccessListener {
+            //it -> token string
+            Log.d("signInSuccess","Retrieved current token successfully!")
+            val hashMap = HashMap<String, Any>()
+            hashMap["token"] = it
+            // now put this token in current logged in user to use it;
+            firebaseDatabase.reference.child("Users").child(FirebaseAuth.getInstance().uid!!)
+                .updateChildren(hashMap)
+
+        }.addOnFailureListener{
+            Log.d("signInSuccess","Failed to retrieve token")
+        }
     }
     private fun fetchDataInTopStatusRecyclerView(){
         firebaseDatabase.reference.child("Stories")
@@ -321,6 +343,7 @@ class MainActivity : AppCompatActivity(),IUsersAdapter {
         intent.putExtra(USERNAME_EXTRA,user.userName)
         intent.putExtra(USERID_EXTRA,user.userId)
         intent.putExtra(USERIMAGE_EXTRA,user.profileImageUrl)
+        intent.putExtra(USERTOKEN_EXTRA,user.token)
         startActivity(intent)
     }
 

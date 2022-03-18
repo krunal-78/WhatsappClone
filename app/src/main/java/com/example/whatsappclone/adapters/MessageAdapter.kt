@@ -93,6 +93,7 @@ class MessageAdapter(private val context : Context,private val itemMessages : Ar
         //now make pop up which will take context , configuration and position;
         val popUp = ReactionPopup(context, config, object : ReactionSelectedListener {
             override fun invoke(position: Int): Boolean {
+                if(position<0) return true
                 if (holder.javaClass == SentViewHolder::class.java) {
                     val viewHolder = holder as SentViewHolder
                     viewHolder.emojiReactSent.setImageResource(reactionsArray[position])

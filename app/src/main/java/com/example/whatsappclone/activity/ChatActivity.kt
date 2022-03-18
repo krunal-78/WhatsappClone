@@ -31,9 +31,15 @@ import kotlin.collections.ArrayList
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
+import com.example.whatsappclone.models.User
 import com.google.firebase.storage.FirebaseStorage
 import de.hdodenhof.circleimageview.CircleImageView
+import org.json.JSONObject
+import kotlin.collections.HashMap
 
 
 class ChatActivity : AppCompatActivity() {
@@ -59,6 +65,8 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var userName : String
     private lateinit var userProfile: String
     private lateinit var progressBar : ProgressBar
+    private lateinit var currentToken : String
+    private lateinit var currentUser : User
     companion object{
         const val SELECTED_IMAGE_PATH_EXTRA = "com.example.whatsappclone.selected_image_path"
         const val USER_NAME_EXTRA = "com.example.whatsappclone.user_name"
@@ -93,7 +101,9 @@ class ChatActivity : AppCompatActivity() {
 
         // receiver user id ;
         receiverUserId = intent.getStringExtra(MainActivity.USERID_EXTRA).toString()
-
+        // get token that is sent by intent;
+        currentToken = intent.getStringExtra(MainActivity.USERTOKEN_EXTRA).toString()
+//        Toast.makeText(this,currentToken,Toast.LENGTH_SHORT).show()
         //sender user id;
         val senderUserId = FirebaseAuth.getInstance().currentUser!!.uid
         // make two different unique ids for sender and receiver by concatenation of the strings;
@@ -111,6 +121,7 @@ class ChatActivity : AppCompatActivity() {
         firebaseDatabase = FirebaseDatabase.getInstance()
         firebaseStorage = FirebaseStorage.getInstance()
         // set user online if it is;
+        getCurrentUser()
         setOnline();
         handleTyping();
 //        supportActionBar!!.title = userName
@@ -119,6 +130,58 @@ class ChatActivity : AppCompatActivity() {
         setUpRecyclerView()
 //        recyclerView.smoothScrollToPosition(recyclerView.adapter!!.itemCount)
 
+    }
+    private fun getCurrentUser() {
+        val currentUserId = FirebaseAuth.getInstance().uid
+        firebaseDatabase.reference.child("Users")
+            .child(currentUserId!!)
+            .addValueEventListener(object : ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    currentUser = snapshot.getValue(User::class.java)!!
+                    Log.d("signInSuccess","got current user's details successfully!")
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("signInSuccess","failed to get current user's details because of error!")
+                }
+
+            })
+    }
+    private fun sendNotificationThroughVolley(titleName : String, bodyMessage : String, token : String){
+        // for api call in volley we have to generate request queue;
+        val requestQueue = Volley.newRequestQueue(this)
+        val url = "https://fcm.googleapis.com/fcm/send" // api url;
+
+        // now in api we receive data in json format so to send data in json format we have to make a json object;
+        val jsonObjectData = JSONObject()
+        // two things for a notification , title and body;
+        jsonObjectData.put("title",titleName)
+        jsonObjectData.put("body",bodyMessage)
+        // make a json object for notification data;
+        val jsonObjectNotificationData = JSONObject()
+        jsonObjectNotificationData.put("notification",jsonObjectData)
+        // in this you can pass token or segments
+        jsonObjectNotificationData.put("to",token)
+
+        // now make a json object request;
+        val jsonObjectRequest = object : JsonObjectRequest(url,jsonObjectNotificationData, Response.Listener {
+            Log.d("signInSuccess","Received Response successfully!")
+        }, Response.ErrorListener {
+            Log.d("signInSuccess","Error occured in response",it)
+        }){
+            // now we have to send firebase server key using getHeaders method;
+            //while calling secure apis , api developers required authorization keys and tokes etc;
+            override fun getHeaders(): MutableMap<String, String> {
+                // imp , have to write Key=
+                val serverKey = "Key=AAAAZM-iBXA:APA91bEViJe8u_WTRxNf88NbpD30vVnu6Lb99D_BgaQMetGw01PvEb4e8MMY2rdVi-DJdPkki1nh_dx3sUyV-UX_kqKCqKEIfZuwNpnTWWuK8qNUllFMhoxK64pUn4fRB4lsW3rhJvSS"
+                val hashMap = HashMap<String,String>()
+                // add authorization and content type in hashmap
+                hashMap["Authorization"] = serverKey
+                hashMap["Content-Type"] = "application/json" // provide content type as application json;
+                return hashMap
+            }
+        }
+        requestQueue.add(jsonObjectRequest)
     }
     // imp part doubt;
     private fun handleTyping() {
@@ -339,6 +402,10 @@ class ChatActivity : AppCompatActivity() {
                         .setValue(message)
                         .addOnSuccessListener {
                             Log.d("signInSuccess", "message stored in receiverRoom successfully!")
+                            // when message is sent send notification also;
+//                            val notificationName = intent.getStringExtra(MainActivity.USERNAME_EXTRA)
+//                            val notificationToken = intent.getStringExtra(MainActivity.USERTOKEN_EXTRA)
+                            sendNotificationThroughVolley(currentUser.userName,messageText,currentToken)
                         }.addOnFailureListener {
                             Log.d(
                                 "singInSuccess",
